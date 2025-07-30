@@ -1,87 +1,80 @@
 #include <iostream>
+#include <string>
 #include <direct.h>
 #include <filesystem>
-#include <string>
+
 using namespace std;
+namespace fs = std::filesystem;
 
+// Function to display the main menu
+void mainMenu() {
+    cout << "\n========== Directory Management System ==========\n";
+    cout << "[1] List Files\n";
+    cout << "[2] Create Directory\n";
+    cout << "[3] Exit\n";
+    cout << "Enter option: ";
+}
 
-  void MainMenu(){
-  	
-  	cout<<"[1]List Files"<<endl;
-  	cout<<"[2]Create Directory"<<endl;
-  	cout<<"[3]Change Directory"<<endl;
-	cout<<"[4]Exit Files"<<endl;
-  	
-	  }
-	  
-	  
-	  void ListFiles(){
-  	
-  	cout<<"[1]List All Files  "<<endl;
-  	cout<<"[2]List Files by Extension "<<endl;
-  	cout<<"[3]List Files by Pattern "<<endl;
-	
-  	
-	  }
-	  
-	  
-	  
-	 void CreateDirectory() {
-	 
-	 
-	 
-	 }
-	 
-	 
-	 void ChangeDirectory(){
-	 	
-	 	
-	 	
-	 	
-	 }
-	 
-  	
+// Function to list all files in the current directory
+void listFiles() {
+    cout << "\nFiles in current directory:\n";
+    try {
+        for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+            cout << "- " << entry.path().filename().string() << endl;
+        }
+    }
+    catch (const fs::filesystem_error& e) {
+        cout << "Error accessing directory: " << e.what() << endl;
+    }
+}
 
-  
- 
+// Function to create a new directory
+void createDirectory() {
+    string dirName;
+    cout << "\nEnter new directory name: ";
+    getline(cin, dirName);
+    try {
+        if (fs::create_directory(dirName)) {
+            cout << "Directory \"" << dirName << "\" created successfully.\n";
+        }
+        else {
+            cout << "Error: Failed to create directory '" << dirName << "'!\n";
+        }
+    }
+    catch (const fs::filesystem_error& e) {
+        cout << "Filesystem error: " << e.what() << endl;
+    }
+}
 
+// Function to handle the main menu
+void mainMenuLoop() {
+    int option;
+    do {
+        mainMenu();
+        while (!(cin >> option)) {
+            cout << "Invalid input. Enter a number: ";
+            cin.clear();
+            cin.ignore(1000, '\n');
+        }
+        cin.ignore(); // Clear input buffer
 
+        switch (option) {
+        case 1:
+            listFiles();
+            break;
+        case 2:
+            createDirectory();
+            break;
+        case 3:
+            cout << "Exiting program.\n";
+            break;
+        default:
+            cout << "Invalid option. Please try again.\n";
+        }
+    } while (option != 3);
+}
 
-
-	int main(){
-	
-		MainMenu();	
-	
-			int choice;
-	
-				cin>>choice;	
-		
-	switch(choice){
-		case 1:
-			
-			
-			break;
-		case 2:
-			
-			
-			break;
-		case 3:
-			
-			
-			break;
-		case 4:
-		
-			
-			break;
-			
-		
-		
-		
-		
-	}	
-		
-		
-		
-		
-		
-	}
+int main() {
+    mainMenuLoop();
+    return 0;
+}
