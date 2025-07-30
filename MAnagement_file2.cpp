@@ -1,87 +1,26 @@
 #include <iostream>
-#include <direct.h>
 #include <filesystem>
 #include <string>
+#include <direct.h>
+
 using namespace std;
+namespace fs = std::filesystem;
 
+// Function to display the main menu and get user choice
+void mainMenu() {
+    cout << "\nDirectory Management System\n";
+    cout << "[1] List Files\n";
+    cout << "[2] Create Directory\n";
+    cout << "[3] Change Directory\n";
+    cout << "[4] Exit\n";
+    cout << "Enter your choice: ";
+}
 
-  void MainMenu(){
-  	
-  	cout<<"[1]List Files"<<endl;
-  	cout<<"[2]Create Directory"<<endl;
-  	cout<<"[3]Change Directory"<<endl;
-	cout<<"[4]Exit Files"<<endl;
-  	
-	  }
-	  
-	  
-	  void ListFiles(){
-  	
-  	cout<<"[1]List All Files  "<<endl;
-  	cout<<"[2]List Files by Extension "<<endl;
-  	cout<<"[3]List Files by Pattern "<<endl;
-	
-  	
-	  }
-	  
-	  
-	  
-	 void CreateDirectory() {
-	 
-	 
-	 
-	 }
-	 
-	 
-	 void ChangeDirectory(){
-	 	
-	 	
-	 	
-	 	
-	 }
-	 
-  	
-
-  
- 
-
-
-
-
-	int main(){
-	
-		MainMenu();	
-	
-			int choice;
-	
-				cin>>choice;	
-		
-	switch(choice){
-		case 1:
-			
-			
-			break;
-		case 2:
-			
-			
-			break;
-		case 3:
-			
-			
-			break;
-		case 4:
-		
-			
-			break;
-			
-		
-		
-		
-		
-	}	
-		
-		
-		
-		
-		
-	}
+// Function to display the list files submenu and get user choice
+void listFilesMenu() {
+    cout << "\nList Files Menu\n";
+    cout << "[1] List All Files\n";
+    cout << "[2] List Files by Extension\n";
+    cout << "[3] List Files by Pattern\n";
+    cout << "Enter your choice: ";
+}
