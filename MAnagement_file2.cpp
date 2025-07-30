@@ -1,46 +1,80 @@
 #include <iostream>
 #include <string>
-#include <windows.h>
+#include <direct.h>
+#include <filesystem>
+
 using namespace std;
+namespace fs = std::filesystem;
 
-void mainMenu() { /* Unchanged */ }
-
-void listFilesMenu() {
-    cout << "\nList Files Menu\n";
-    cout << "[1] List All Files\n";
-    cout << "Enter your choice: ";
+// Function to display the main menu
+void mainMenu() {
+    cout << "\n========== Directory Management System ==========\n";
+    cout << "[1] List Files\n";
+    cout << "[2] Create Directory\n";
+    cout << "[3] Exit\n";
+    cout << "Enter option: ";
 }
 
+// Function to list all files in the current directory
 void listFiles() {
-    int choice;
-    listFilesMenu();
-    cin >> choice;
-    cin.ignore();
-    HANDLE hFind;
-    WIN32_FIND_DATA findData;
-    if (choice == 1) {
-        cout << "\nListing all files in current directory:\n";
-        hFind = FindFirstFile("*.*", &findData);
-        if (hFind != INVALID_HANDLE_VALUE) {
-            do {
-                cout << findData.cFileName << endl;
-            } while (FindNextFile(hFind, &findData));
-            FindClose(hFind);
-        } else {
-            cout << "Error: Unable to list files!\n";
+    cout << "\nFiles in current directory:\n";
+    try {
+        for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+            cout << "- " << entry.path().filename().string() << endl;
         }
-    } else {
-        cout << "Invalid choice!\n";
+    }
+    catch (const fs::filesystem_error& e) {
+        cout << "Error accessing directory: " << e.what() << endl;
     }
 }
 
+// Function to create a new directory
+void createDirectory() {
+    string dirName;
+    cout << "\nEnter new directory name: ";
+    getline(cin, dirName);
+    try {
+        if (fs::create_directory(dirName)) {
+            cout << "Directory \"" << dirName << "\" created successfully.\n";
+        }
+        else {
+            cout << "Error: Failed to create directory '" << dirName << "'!\n";
+        }
+    }
+    catch (const fs::filesystem_error& e) {
+        cout << "Filesystem error: " << e.what() << endl;
+    }
+}
+
+// Function to handle the main menu
+void mainMenuLoop() {
+    int option;
+    do {
+        mainMenu();
+        while (!(cin >> option)) {
+            cout << "Invalid input. Enter a number: ";
+            cin.clear();
+            cin.ignore(1000, '\n');
+        }
+        cin.ignore(); // Clear input buffer
+
+        switch (option) {
+        case 1:
+            listFiles();
+            break;
+        case 2:
+            createDirectory();
+            break;
+        case 3:
+            cout << "Exiting program.\n";
+            break;
+        default:
+            cout << "Invalid option. Please try again.\n";
+        }
+    } while (option != 3);
+}
+
 int main() {
-    int choice;
-    mainMenu();
-    cin >> choice;
-    cin.ignore();
-    if (choice == 1) listFiles();
-    else if (choice == 4) cout << "Exiting program.\n";
-    else cout << "Invalid choice!\n";
+    mainMenuLoop();
     return 0;
 }
