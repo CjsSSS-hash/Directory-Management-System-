@@ -4,11 +4,10 @@
 #include <filesystem>
 
 using namespace std;
-namespace fs = std::filesystem;
+namespace fs = std::filesystem; // Alias for std::filesystem namespace
 
 // Function to display the main menu
 void mainMenu() {
-    cout << "\n========== Directory Management System ==========\n";
     cout << "[1] List Files\n";
     cout << "[2] Create Directory\n";
     cout << "[3] Change Directory\n";
@@ -16,16 +15,77 @@ void mainMenu() {
     cout << "Enter option: ";
 }
 
-// Function to list all files in the current directory
+// Function to display the list files submenu
+void listFilesMenu() {
+    cout << "[1] List All Files\n";
+    cout << "[2] List Files by Extension (e.g., .txt)\n";
+    cout << "[3] List Files by Pattern (e.g., moha*.*)\n";
+    cout << "Enter choice: ";
+}
+
+// Function to list files based on user selection
 void listFiles() {
-    cout << "\nFiles in current directory:\n";
+    int choice;
+    listFilesMenu();
+    while (!(cin >> choice)) {
+        cout << "Invalid input. Enter a number: ";
+        cin.clear();
+        cin.ignore(1000, '\n');
+    }
+    cin.ignore(); // Clear input buffer
+
     try {
-        for (const auto& entry : fs::directory_iterator(fs::current_path())) {
-            cout << "- " << entry.path().filename().string() << endl;
+        if (choice == 1) {
+            // List all files in the current directory
+            cout << "\nFiles in current diretory:\n";
+            for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+                cout <<"- "<< entry.path().filename().string() << endl;
+            }
+        }
+        else if (choice == 2) {
+            // List files by extension
+            string ext;
+            cout << "Enter file extension (include the dot, e.g., .txt): ";
+            getline(cin, ext);
+            cout << "\nListing files with extension " << ext << ":\n";
+            bool found = false;
+            for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+                if (entry.path().extension().string() == ext) {
+                    cout << entry.path().filename().string() << endl;
+                    found = true;
+                }
+            }
+            if (!found) {
+                cout << "No files found with extension " << ext << "!\n";
+            }
+        }
+        else if (choice == 3) {
+            // List files by pattern
+            string pattern;
+            cout << "Enter file pattern (e.g., moha*.*): ";
+            getline(cin, pattern);
+            cout << "\nListing files matching pattern " << pattern << ":\n";
+            bool found = false;
+            // Extract prefix before the first '*'
+            size_t starPos = pattern.find('*');
+            string prefix = (starPos != string::npos) ? pattern.substr(0, starPos) : pattern;
+            for (const auto& entry : fs::directory_iterator(fs::current_path())) {
+                string filename = entry.path().filename().string();
+                if (filename.find(prefix) == 0) { // Match prefix at start
+                    cout << filename << endl;
+                    found = true;
+                }
+            }
+            if (!found) {
+                cout << "No files found matching pattern " << pattern << "!\n";
+            }
+        }
+        else {
+            cout << "Invalid choice!\n";
         }
     }
     catch (const fs::filesystem_error& e) {
-        cout << "Error accessing directory: " << e.what() << endl;
+        cout << "Filesystem error: " << e.what() << endl;
     }
 }
 
@@ -34,19 +94,24 @@ void createDirectory() {
     string dirName;
     cout << "\nEnter new directory name: ";
     getline(cin, dirName);
-    try {
-        if (_access(dirName.c_str(), 0) == 0) {
-            cout << "Error: Directory \"" << dirName << "\" already exists!\n";
-        }
-        else if (fs::create_directory(dirName)) {
-            cout << "Directory \"" << dirName << "\" created successfully.\n";
-        }
-        else {
-            cout << "Error: Failed to create directory '" << dirName << "'!\n";
-        }
+
+    // Check if directory already exists
+    if (_access(dirName.c_str(), 0) == 0) {
+        cout << "Error: Directory " << "\""<<dirName<<"\"" <<" already exists!\n";
     }
-    catch (const fs::filesystem_error& e) {
-        cout << "Filesystem error: " << e.what() << endl;
+    else {
+        // Attempt to create the directory
+        try {
+            if (fs::create_directory(dirName)) {
+                cout << "Directory " << "\""<<dirName<<"\"" << " created successfully.\n";
+            }
+            else {
+                cout << "Error: Failed to create directory '" << dirName << "'!\n";
+            }
+        }
+        catch (const fs::filesystem_error& e) {
+            cout << "Filesystem error: " << e.what() << endl;
+        }
     }
 }
 
@@ -55,7 +120,7 @@ void changeDirectoryMenu() {
     cout << "\nChange Directory Menu\n";
     cout << "[1] Move to Parent Directory\n";
     cout << "[2] Move to Root Directory\n";
-    cout << "[3] Enter Custom Path\n";
+    cout << "[3] Enter Custom Path (e.g., C:\\Users\\Documents)\n";
     cout << "Enter choice: ";
 }
 
@@ -68,10 +133,11 @@ void changeDirectory() {
         cin.clear();
         cin.ignore(1000, '\n');
     }
-    cin.ignore();
+    cin.ignore(); // Clear input buffer
 
     try {
         if (choice == 1) {
+            // Move to parent directory
             fs::path current = fs::current_path();
             fs::path parent = current.parent_path();
             if (parent != current) {
@@ -83,19 +149,21 @@ void changeDirectory() {
             }
         }
         else if (choice == 2) {
+            // Move to root directory
             fs::path root = fs::current_path().root_path();
             fs::current_path(root);
             cout << "Changed to root directory: " << fs::current_path().string() << endl;
         }
         else if (choice == 3) {
+            // Enter custom path
             string path;
-            cout << "Enter new directory path: ";
+            cout << "Enter new directory path (e.g., C:\\Users\\Documents): ";
             getline(cin, path);
             if (_chdir(path.c_str()) == 0) {
                 cout << "Changed to directory: " << fs::current_path().string() << endl;
             }
             else {
-                cout << "Error: Directory \"" << path << "\" not found!\n";
+                cout << "Error: Directory  \"InvalidPath\""<<" not found!" <<"\n";
             }
         }
         else {
@@ -107,7 +175,7 @@ void changeDirectory() {
     }
 }
 
-// Function to handle the main menu
+// Function to handle the main menu and user interaction
 void mainMenuLoop() {
     int option;
     do {
@@ -117,7 +185,7 @@ void mainMenuLoop() {
             cin.clear();
             cin.ignore(1000, '\n');
         }
-        cin.ignore();
+        cin.ignore(); // Clear input buffer
 
         switch (option) {
         case 1:
